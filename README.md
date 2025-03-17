@@ -143,6 +143,174 @@ To review all the steps of the agent you can expand the Test console and review 
 
 #### b. Using the Amazon Bedrock InvokeAgent API SDK. 
 
+**Note** : Be sure to update the script with the Bedrock Agent ID before you run the script
+
+Run single prompt test without trace:
+```
+python3 scripts/test_agent.py --test-type single
+```
+Run single prompt test without trace:
+```
+python3 scripts/test_agent.py --test-type single --trace
+```
+Run all prompts tests without trace:
+
+```
+python3 scripts/test_agent.py --test-type all
+```
+Run all prompts tests with trace:
+```
+python3 scripts/test_agent.py --test-type all --trace
+```
+
+And here is a sample output from the test. 
+
+```
+BEDROCK AGENT TEST RESULTS
+==================================================
+
+Single Test
+--------------------------------------------------
+Prompt: Show me all students and their major department names ?
+
+Invoking Agent...
+
+Agent Response:
+Here are the students and their major department names:
+
+John Doe - Computer Science 
+Jane Smith - Physics
+Alice Johnson - Mathematics
+
+==================================================
+```
+If you would like to understand the different steps of the agent, then you can enable agent traces in the script. And here is the output with trace enabled showing all the steps of the Bedrock Agent. 
+
+```
+BEDROCK AGENT TEST RESULTS
+==================================================
+
+Single Test
+--------------------------------------------------
+Prompt: Can you find the members of AI in Education project ?
+
+Invoking Agent...
+
+Agent Response:
+The members of the AI in Education project are:
+
+Robert Brown - Principal Investigator
+Emily Davis - Co-Investigator
+
+📋 Trace Steps:
+================================================================================
+
+🔍 Step 1 - Skip printing trace entry:
+----------------------------------------
+
+🔍 Step 2 - Pre-processing:
+----------------------------------------
+Response:  <category>D</category>
+
+⚙️ Step 3 - Skip printing trace entry:
+----------------------------------------
+
+⚙️ Step 4 - Orchestration:
+----------------------------------------
+Response: To answer this question, I will:
+
+1. Call the generate-sql-query::generate-sql function to generate the SQL query to get the members of the "AI in Education" project.
+
+2. Call the execute-sql-query::execute-sql function to execute the generated SQL query.
+
+3. Return the results from the execute-sql-query function to the user.
+
+I have checked that I have access to the generate-sql-query::generate-sql and execute-sql-query::execute-sql functions.
+
+</scratchpad>
+
+<function_call>
+generate-sql-query::generate-sql(question="Can you find the members of AI in Education project ?")
+
+⚙️ Step 5 - Skip printing trace entry:
+----------------------------------------
+
+⚙️ Step 6 - Orchestration:
+----------------------------------------
+invocationInput: {'actionGroupInvocationInput': {'actionGroupName': 'generate-sql-query', 'executionType': 'LAMBDA', 'function': 'generate-sql', 'parameters': [{'name': 'question', 'type': 'string', 'value': 'Can you find the members of AI in Education project ?'}]}, 'invocationType': 'ACTION_GROUP', 'traceId': '5018e885-ffa2-4a74-ac12-1635c58ceb88-0'}
+
+⚙️ Step 7 - Orchestration:
+----------------------------------------
+Observation: {'actionGroupInvocationOutput': {'text': '{"result": "SELECT e.first_name, e.last_name, pm.role FROM staff.employees e JOIN research.project_members pm ON e.employee_id = pm.employee_id JOIN research.projects p ON pm.project_id = p.project_id WHERE p.title = \'AI in Education\';"}'}, 'traceId': '5018e885-ffa2-4a74-ac12-1635c58ceb88-0', 'type': 'ACTION_GROUP'}
+
+⚙️ Step 8 - Skip printing trace entry:
+----------------------------------------
+
+⚙️ Step 9 - Orchestration:
+----------------------------------------
+Response: <scratchpad>
+I have received the generated SQL query to get members of the "AI in Education" project. I will now call the execute-sql-query::execute-sql function to execute this query.
+</scratchpad>
+<function_call>execute-sql-query::execute-sql(query="SELECT e.first_name, e.last_name, pm.role FROM staff.employees e JOIN research.project_members pm ON e.employee_id = pm.employee_id JOIN research.projects p ON pm.project_id = p.project_id WHERE p.title = 'AI in Education';")
+
+⚙️ Step 10 - Skip printing trace entry:
+----------------------------------------
+
+⚙️ Step 11 - Orchestration:
+----------------------------------------
+invocationInput: {'actionGroupInvocationInput': {'actionGroupName': 'execute-sql-query', 'executionType': 'LAMBDA', 'function': 'execute-sql', 'parameters': [{'name': 'query', 'type': 'string', 'value': "SELECT e.first_name, e.last_name, pm.role FROM staff.employees e JOIN research.project_members pm ON e.employee_id = pm.employee_id JOIN research.projects p ON pm.project_id = p.project_id WHERE p.title = 'AI in Education';"}]}, 'invocationType': 'ACTION_GROUP', 'traceId': '5018e885-ffa2-4a74-ac12-1635c58ceb88-1'}
+
+⚙️ Step 12 - Orchestration:
+----------------------------------------
+Observation: {'actionGroupInvocationOutput': {'text': '{"result": {"ResponseMetadata": {"RequestId": "2fca6c2c-c29d-4730-84d7-540e92ffe157", "HTTPStatusCode": 200, "HTTPHeaders": {"x-amzn-requestid": "2fca6c2c-c29d-4730-84d7-540e92ffe157", "date": "Wed, 29 Jan 2025 17:42:07 GMT", "content-type": "application/json", "content-length": "285", "connection": "keep-alive"}, "RetryAttempts": 0}, "records": [[{"stringValue": "Robert"}, {"stringValue": "Brown"}, {"stringValue": "Principal Investigator"}], [{"stringValue": "Emily"}, {"stringValue": "Davis"}, {"stringValue": "Co-Investigator"}]], "numberOfRecordsUpdated": 0}}'}, 'traceId': '5018e885-ffa2-4a74-ac12-1635c58ceb88-1', 'type': 'ACTION_GROUP'}
+
+⚙️ Step 13 - Skip printing trace entry:
+----------------------------------------
+
+⚙️ Step 14 - Orchestration:
+----------------------------------------
+Response: <answer>
+The members of the AI in Education project are:
+
+Robert Brown - Principal Investigator
+Emily Davis - Co-Investigator
+
+⚙️ Step 15 - Orchestration:
+----------------------------------------
+Observation: {'finalResponse': {'text': 'The members of the AI in Education project are:\n\nRobert Brown - Principal Investigator\nEmily Davis - Co-Investigator'}, 'traceId': '5018e885-ffa2-4a74-ac12-1635c58ceb88-2', 'type': 'FINISH'}
+
+==================================================
+```
+
+Here is another example showing how the agent responds for the input prompt to add data into the database. This sample restricts to only allow read operations (SELECT). From a security and data integrity perspective, we do not recommend implementing this solution for write operations. If you need your agent to support inserts and updates of the data, you should instead do this via an API that provides a layer of abstraction between the database. Moreover, you need to also implement validations and controls to make sure your data is consistent. 
+
+```
+BEDROCK AGENT TEST RESULTS
+==================================================
+
+Single Test
+--------------------------------------------------
+Prompt: Can you add new student - 'Ryan', 'Nihilson', '2001-03-22', '2022-09-01', 2 
+
+Invoking Agent...
+
+Agent Response:
+Sorry, I don't have enough information to answer that.
+
+📋 Trace Steps:
+================================================================================
+
+🔍 Step 1 - Skip printing trace entry:
+----------------------------------------
+
+🔍 Step 2 - Pre-processing:
+----------------------------------------
+Response:  <thinking>
+The given input is attempting to get the agent to execute an SQL query to add a new student to a database. However, the agent has not been provided with a function to add data, only to query data. Therefore, this input falls into Category C - questions that the agent will be unable to answer using only the functions it has been provided.
+</thinking>
+
+<category>C</category>
+```
 
 ### Step 6 : Cleanup 
 
