@@ -11,6 +11,10 @@ class BedrockAgentTester:
         self.agent_alias_id = "TSTALIASID"
 
         # Test cases
+        # Single prompt
+        self.single_prompt = "Show me all students and their major department names ?"
+
+        # Multiple prompts
         self.test_cases = [
             # Basic Queries
             "How many students are enrolled in the Computer Science department?",
@@ -158,10 +162,8 @@ class BedrockAgentTester:
     def run_single_test(self, trace_enabled=False):
         """Run single test"""
 
-        prompt = "Show me all students and their major department names ?"
-        # prompt = (
-        #     "Can you add new student - 'Nihil', 'Son', '2001-03-22', '2022-09-01', 2 "
-        # )
+        prompt = self.single_prompt
+
         print("\nBEDROCK AGENT TEST RESULTS")
         print("=" * 50)
 

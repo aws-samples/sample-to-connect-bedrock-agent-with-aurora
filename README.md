@@ -33,6 +33,7 @@ The high-level steps in this architecture are:
 ### Prerequisites
 
 - An AWS account with AWS Identity and Access Management (IAM) permissions to create an Aurora PostgreSQL database.
+- Access to Bedrock console and LLMs Agent is using
 - Python installed with the Boto3 library.
 - An IDE like Visual Studio Code. 
 
@@ -120,9 +121,13 @@ Navigate to the Amazon Bedrock Agent console and review the following configurat
 
 ### Step 5 : Test the Bedrock Agent
 
-You need to create a sample schema with data using scripts/create_schema.py before you can proceed with the testing. This will create bunch of schemas, tables and ingest sample data. The test is very straight forward where you send a natural language prompt as input to the Bedrock Agent which then has to generate the necessary SQL query and execute the query against the configured Aurora PostgreSQL database using RDS Data APIs. The Bedrock Agent should then return you a response that is based on the results queried from the Aurora PostgreSQL database using RDS data API.
+Create a sample schema with data using [scripts/create_schema.py](scripts/create_schema.py) before proceeding with the testing. 
+- This will create bunch of schemas, tables and ingest sample data.
+- Send a natural language prompt as input to the Bedrock Agent
+- It then generates the necessary SQL query and execute the query against the configured Aurora PostgreSQL database using RDS Data APIs.
+- The Bedrock Agent should then return you a response that is based on the results queried from the Aurora PostgreSQL database using RDS data API.
 
-**Note** : Be sure to update the script with the CLUSTER_ARN, ADMIN_SECRET_ARN, DB_NAME noted in step 2. 
+**Note** : Be sure to update the [script](scripts/create_schema.py) with the CLUSTER_ARN, ADMIN_SECRET_ARN, DB_NAME noted in step 2. 
 
 ```
 python3 scripts/create_schema.py
@@ -130,7 +135,7 @@ python3 scripts/create_schema.py
 
 There are couple of ways you can test with the deployed Bedrock Agent named:  generative-agent
 
-#### a. Using the Test console of Amazon Bedrock Agent 
+#### Option 1. Using the Test console of Amazon Bedrock Agent 
 
 Navigate to Amazon Bedrock Agent console and you can input a prompt from the Test console. 
 
@@ -141,9 +146,9 @@ To review all the steps of the agent you can expand the Test console and review 
 ![Review Agent Traces](./images/review_agent_traces.png)
 
 
-#### b. Using the Amazon Bedrock InvokeAgent API SDK. 
+#### Option 2. Using the Amazon Bedrock InvokeAgent API SDK. 
 
-**Note** : Be sure to update the script with the Bedrock Agent ID before you run the script
+**Note** : Be sure to update the [script](tests/test_agent.py) with the Bedrock Agent ID before you run the script.
 
 Run single prompt test without trace:
 ```
