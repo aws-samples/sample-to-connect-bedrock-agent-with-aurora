@@ -140,11 +140,15 @@ def validate_input(question):
         "/*",
         "*/",
         "@@",
-        "UNION",
-        "SELECT",
         "DROP",
         "DELETE",
         "UPDATE",
+        "ALTER",
+        "INSERT",
+        "EXEC",
+        "GRANT",
+        "REVOKE",
+        "TRUNCATE",
     ]
 
     question_lower = question.lower()

@@ -75,7 +75,7 @@ class RDSAuroraStack(Stack):
         secret = sm.CfnSecret(
             self,
             "AuroraGlobalServerlessDBSecret",
-            name="aurora-serverless-global-db-secret",
+            name="aurora-serverless-db-secret",
             generate_secret_string=sm.CfnSecret.GenerateSecretStringProperty(
                 secret_string_template='{"username": "postgres"}',
                 exclude_punctuation=True,
@@ -95,11 +95,11 @@ class RDSAuroraStack(Stack):
             database_name=database_name,
             master_username=CfnDynamicReference(
                 CfnDynamicReferenceService.SECRETS_MANAGER,
-                "aurora-serverless-global-db-secret:SecretString:username",
+                "aurora-serverless-db-secret:SecretString:username",
             ).to_string(),
             master_user_password=CfnDynamicReference(
                 CfnDynamicReferenceService.SECRETS_MANAGER,
-                "aurora-serverless-global-db-secret:SecretString:password",
+                "aurora-serverless-db-secret:SecretString:password",
             ).to_string(),
             vpc_security_group_ids=[db_security_group.security_group_id],
             enable_http_endpoint=True,

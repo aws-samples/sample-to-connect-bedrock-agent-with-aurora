@@ -20,7 +20,13 @@ class BedrockAgentStack(Stack):
         cluster_arn = cdk.Fn.import_value("ClusterARN")
         secret_arn = cdk.Fn.import_value("ReadOnlySecretARN")
         db_name = cdk.Fn.import_value("DBName")
-        model_id = self.node.try_get_context("model_id")
+        model_id = (
+            self.node.try_get_context("model_id")
+            or "us.anthropic.claude-3-sonnet-20240229-v1:0"
+        )
+
+        # Use system-defined inference profile
+        inference_profile_arn = f"arn:aws:bedrock:{Stack.of(self).region}:{Stack.of(self).account}:inference-profile/us.{model_id}"
 
         # Create IAM role for Lambda
         generate_query_lambda_role = iam.Role(
@@ -110,14 +116,12 @@ class BedrockAgentStack(Stack):
             )
         )
 
-        # Add permission to invoke Model
+        # Add permission to invoke Model and Inference Profiles
         invoke_model_policy = agent_role.add_to_policy(
             iam.PolicyStatement(
                 effect=iam.Effect.ALLOW,
                 actions=["bedrock:InvokeModel"],
-                resources=[
-                    f"arn:aws:bedrock:{Stack.of(self).region}::foundation-model/*"
-                ],
+                resources=["*"],
             )
         )
 
@@ -298,7 +302,7 @@ class BedrockAgentStack(Stack):
             "QueryAgent",
             agent_name="query-agent",
             agent_resource_role_arn=agent_role.role_arn,
-            foundation_model="anthropic.claude-v2",
+            foundation_model=inference_profile_arn,
             instruction=" You are a SQL query assistant that helps users interact with a PostgreSQL database. You can generate read only (SELECT) SQL queries based on natural language prompts and execute queries against the database. Do not generate SQL queries that can modify or update any underlying data or schema in the database. Always validate queries for security before execution. Use the generate-query action to create SQL queries and the execute-query action to run them.",
             description="SQL Query Assistant for PostgreSQL Database",
             idle_session_ttl_in_seconds=1800,
@@ -344,3 +348,4 @@ class BedrockAgentStack(Stack):
         # Outputs
         CfnOutput(self, "AgentId", value=agent.ref)
         CfnOutput(self, "AgentAliasId", value=agent_alias.ref)
+        CfnOutput(self, "InferenceProfileArn", value=inference_profile_arn)
