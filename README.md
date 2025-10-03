@@ -95,6 +95,7 @@ Make a note of the Aurora resources like the CLUSTER_ARN, ADMIN_SECRET_ARN, READ
 
 ### Step 3 : Deploy the BedrockAgent Stack
 
+Update the cdk.content.json for any customizations. (eg : model_id, pg_version etc )
 Now you can deploy the Amazon Bedrock Agent using the command:
 
 ```
